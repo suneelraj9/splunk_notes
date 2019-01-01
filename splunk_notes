@@ -1,0 +1,9 @@
+splunk forwarder
+****************
+ >> Enable the splunk service during boot:
+   /opt/splunkforwarder/bin/splunk enable boot-start
+ >> Splunk add forwarder through CLI
+   /opt/splunkforwarder/bin/splunk add forward_server 10.x.x.x:9997
+ >> Add monitor of the log file
+   /opt/splunkforwarder/bin/splunk add monitor /opt/log/www1
+ >> 
