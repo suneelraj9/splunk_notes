@@ -1,3 +1,9 @@
+splunk queries
+***************
+> write a search to pull the OS distribution of all hosts
+   index=_internal fwdType="*" | dedup hostname | stats count by os, version
+
+
 splunk forwarder
 ****************
  >> Enable the splunk service during boot:
@@ -7,3 +13,9 @@ splunk forwarder
  >> Add monitor of the log file
    /opt/splunkforwarder/bin/splunk add monitor /opt/log/www1
  >> 
+ 
+ hardware errors key words
+ *************************
+ 
+ "hardware error" AND 
+ 
