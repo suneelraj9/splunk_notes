@@ -2,6 +2,18 @@ splunk queries
 ***************
 > write a search to pull the OS distribution of all hosts
    index=_internal fwdType="*" | dedup hostname | stats count by os, version
+   
+> To check the process states
+   index=os sourcetype=ps rhnsd|dedup host|stats count as runningCount|eval rhnsdMissing=(10-runningCount)| table rhnsdMissing
+   
+> Combine three different source types(CPU,Memory, Network Utilization as perecentage) 
+  index=xyz (sourcetype=CPUtime OR sourcetype=Memory OR sourcetype=Localnetwork)  (counter="% Processor Time" OR counter="Committed Bytes" OR counter="Bytes Received/Sec") | chart  avg(Value) as values over host by counter
+  
+> create and trigger an alert if the CPU usage is constantly 100% for the past 10 minutes
+  index=* host=zzzz sourcetype="Perfmon:CPU" source="Perfmon:CPU" counter="% Processor Time" | timechart span=10m limit=0 avg(Value) as "% of CPU Usage"
+  
+> 
+
 
 
 splunk forwarder
