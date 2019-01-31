@@ -32,296 +32,94 @@ splunk forwarder
  "hardware error" AND 
  
  
- netstat
- ********
- >> netstat
-**********	
-
-> Basic Netstat Search
-
-	index=uxperf_na sourcetype=netstat host="r1pvwb1077"
-
-	| multikv 
-
-	| search (*WAIT* OR ESTABLISHED OR SYN*) 
-
-	| timechart span=10m count by State
-	
-> Find listening sockets
-
-	index=uxperf_na sourcetype=netstat host="r1pvwb1077" 
-
-	| multikv 
-
-	| search  LISTEN
-
-	| rex field=LocalAddress "(?<local_ip>\d+\.\d+\.\d+\.\d+):(?<local_port>\d+)"
-
-	| table local_ip,local_port
-
-> Splunk split netstat ip:port
-
-	index=uxperf_na sourcetype=netstat host="l1pvwb1039"  
-
-	| multikv
-
-	| search (*WAIT* OR ESTABLISHED OR SYN*) 
-
-	| rex field=LocalAddress "(?<local_ip>\d+\.\d+\.\d+\.\d+):(?<local_port>\d+)” 
-
-	| search  local_port=7443
-
-	| rex field=LocalAddress "(?<local_ip>\d+\.\d+\.\d+\.\d+):(?<local_port>\d+)"
-
-	| timechart  span=10m count by State
-	
-> Foreign address regex
-
-	rex field=ForeignAddress "(?<rem_ip>\d+\.\d+\.\d+\.\d+):(?<rem_port>\d+)” 
-	
-> Netstat scripts and commands
-
-	Count number of tcp connections
-
-	ss -tan | sed 's/\:/ /g' | awk '!/127.0.0|LISTEN|State/ {print $1}' |sort | uniq -c
-
-	netstat -nt  | awk '!/127.0.0/ {print $6}' | sort | uniq -c
  
-> Counts the number of established connections per remote IP using ss
-
-	# replace the grep “:3306 ” with your favorite port
-
-	ss -to state established '( dport = :3306 or sport = :3306 )' | awk '{print $4}' | cut -f 1 -d ":" | sort | uniq -c | sort -rn
-
-> Count the number of connection types by foreign address
-
-	# Count only the states
-
-	ss -tan | sed 's/\:/ /g' | awk '!/127.0.0|LISTEN|State/ {print $1}' |sort | uniq -c
-
-	# Count the states by foreign address
-
-	ss -tan | sed 's/\:/ /g' |tr -d '\015' | awk 'NF'| awk '!/127.0.0|LISTEN|State|*|Active/ {print $1,$6}' |sort | uniq -c
-
-> Pull Netstat states for a host
-
-	index=uxperf_na sourcetype=netstat host="R1PVAP1249"   | multikv  | search (*WAIT* OR ESTABLISHED OR SYN*) | timechart span=5m count by State
 	
-> rex to extract local and foreign ip and ports
-	
-	rex field=LocalAddress "(?<local_ip>\d+\.\d+\.\d+\.\d+):(?<local_port>\d+)"  | rex field=ForeignAddress "(?<rem_ip>\d+\.\d+\.\d+\.\d+):(?<rem_port>\d+)"
-	
-> Using the ip/port rex to exclude localhost from netstat states
-	
-	index=uxperf_na sourcetype=netstat host="l1pvap1110"   | multikv | rex field=LocalAddress "(?<local_ip>\d+\.\d+\.\d+\.\d+):(?<local_port>\d+)"  | rex field=ForeignAddress "(?<rem_ip>\d+\.\d+\.\d+\.\d+):(?<rem_port>\d+)" | search (*WAIT* OR ESTABLISHED OR SYN*)   NOT local_ip="127.0.0.1" | timechart  span=10m count by State
-
-> regex example to extract the FEX
-
-	index=network_na sourcetype=cisco_switch host="10.165.238.50"  AND  "(module removed)" | rex "Ethernet(?<FEX>\d+)" | stats by FEX
-	
-> Find device down in NetScaler logs
-
-	index=network_na sourcetype=ns_log ns_msgaction=DEVICEDOWN | timechart span=1m count by ns_name
-	
-> Extract the file name from http log (Al B.)
-
-	sourcetype="MobileGateway:HA_PROD_APACHE" source="/web/apache-2.4/logs/mGateway_web_p1/access.log.*" elapsedtime GET | rex field=_raw  "GET (?<filename>.*) HTTP" | top filename
-	
-> Comparing data from two days (Al B.)
-	
-	index=application_na sourcetype=fs*prod source=*events* eventType=END OR eventType=ERROR common.clientName!=fs-smoke-test ** ( "common.clientName"="DGPrdODS-PSCU.fdclientcenter.com" ) earliest=-0d@d latest=now | multikv | eval ReportKey="today" | append [search index=application_na sourcetype=fs*prod source=*events* eventType=END OR eventType=ERROR common.clientName!=fs-smoke-test ** ( "common.clientName"="DGPrdODS-PSCU.fdclientcenter.com" ) earliest=-1d@d latest=-0d@d | multikv | eval ReportKey="yesterday" | eval _time=_time+86400] | timechart span=5m avg(pctIdle) by ReportKey
-	
-> Al's Buypass query displaying percentiles
-
-	sourcetype="MobileGateway:HA_PROD*" source=/appserver/wildfly-8.2.0.Final/server/mGateway_petro_p01/log/mGatewayBuypassAdapter.log "Received Response in BuyPassTransactionAdapterImpl" | rex ".(?<ResponseFromBuypass_ms>\d+) milliseconds" | timechart span=5m min(ResponseFromBuypass_ms) p05(ResponseFromBuypass_ms) p25(ResponseFromBuypass_ms) p50(ResponseFromBuypass_ms) p75(ResponseFromBuypass_ms) p95(ResponseFromBuypass_ms) max(ResponseFromBuypass_ms) count 
-	
-> Durko Splunk Query with labels and by hour of day
-
-	index=etims_na sourcetype=etims_prod platformId=5 b00009=MO | rename 000091 as entry_timestamp, 000072 as raw_timestamp, 000094 as auth_send_time,000095 as auth_recv_time | eval j_timestamp=tonumber(substr(tostring(raw_timestamp),1,18)), response_time=j_timestamp-entry_timestamp-18000000000, network_time=auth_recv_time - auth_send_time, hourofday=strftime((j_timestamp - 210866803200000000 ) / 1000000,"%H"), epochtime=((j_timestamp/1000000)-2440587.500000) | stats  avg(response_time) AS Avg, median(response_time) as Median perc95(response_time), AS NinteyFive, perc99(response_time) AS NinetyNine, p99.99(response_time) AS FourNines, count AS Count by hourofday
-	
-> Using percentiles in Splunk
-
-	index=openloop_na sourcetype=MoneyNetworkFraud | timechart span=15m p05(Total_Response_Time) p50(Total_Response_Time) p95(Total_Response_Time)
-
-	index=openloop_na sourcetype=MoneyNetworkFraud host="r1pvap1354.1dc.com" | timechart span=10s max(Total_Response_Time) p50(Total_Response_Time) p95(Total_Response_Time) avg(Total_Response_Time)
-   
-index uxperf_na
+Splunk tutorial
 ***************
-
-> Using the ip/port rex to exclude localhost from netstat states
-
-	index=uxperf_na sourcetype=netstat host="l1pvap1110"   | multikv | rex field=LocalAddress "(?<local_ip>\d+\.\d+\.\d+\.\d+):(?<local_port>\d+)"  | rex field=ForeignAddress "(?<rem_ip>\d+\.\d+\.\d+\.\d+):(?<rem_port>\d+)" | search (*WAIT* OR ESTABLISHED OR SYN*)   NOT local_ip="127.0.0.1" | timechart  span=10m count by State	
 	
-> Pull Netstat states for a host
-
-	index=uxperf_na sourcetype=netstat host="R1PVAP1249"   | multikv  | search (*WAIT* OR ESTABLISHED OR SYN*) | timechart span=5m count by State
-	
-> Splunk split netstat ip:port
-
-	index=uxperf_na sourcetype=netstat host="l1pvwb1039"  
-
-	| multikv
-
-	| search (*WAIT* OR ESTABLISHED OR SYN*) 
-
-	| rex field=LocalAddress "(?<local_ip>\d+\.\d+\.\d+\.\d+):(?<local_port>\d+)” 
-
-	| search  local_port=7443
-
-	| rex field=LocalAddress "(?<local_ip>\d+\.\d+\.\d+\.\d+):(?<local_port>\d+)"
-
-	| timechart  span=10m count by State
-	
-> Basic Netstat Search
-
-	index=uxperf_na sourcetype=netstat host="r1pvwb1077"
-
-	| multikv 
-
-	| search (*WAIT* OR ESTABLISHED OR SYN*) 
-
-	| timechart span=10m count by State
-	
-> Find listening sockets
-
-	index=uxperf_na sourcetype=netstat host="r1pvwb1077" 
-
-	| multikv 
-
-	| search  LISTEN
-
-	| rex field=LocalAddress "(?<local_ip>\d+\.\d+\.\d+\.\d+):(?<local_port>\d+)"
-
-	| table local_ip,local_port
-
--> index=uxperf_na host=r1pvap018 OR host=r1pvap030 sourcetype=netstat ":25 *ESTABLISHED" | rex mode=sed "s/(?m)^.*:(25\s+ESTABLISHED).*$/\1/g" | rex mode=sed "s/(?m)^(?!25\s+ESTABLISHED).*$//g" | rex mode=sed "s/\n+(\n[^\n])/\1/g" | rex mode=sed "s/\n/;/g" | rex mode=sed "s/;+$//g" | eval raws=split(_raw, ";") | eval sockets=mvcount(raws) | timechart avg(sockets) max(sockets) by host
-
--> index=uxperf_na host=n1pvap278 sourcetype=ps | timechart span=5m avg(cpu_load_percent) by process_name
-
->  Indexers CPU usage per datacenter
-
-	index=uxperf_na (sourcetype=cpu AND cpu=all) (host=o1ppap1026* OR host=o1ppap1036* OR host=o1ppap1037* OR host=o1ppap1038* OR host=o1ppap1039* OR host=o1ppap1040* OR host=o1ppap1041* OR host=o1ppap1042* OR host=o1ppap1043* OR host=o1ppap1044* OR host=o1ppap1045* OR host=o1ppap1046* OR host=o1ppap1047* OR host=o1ppap1048* OR host=o1ppap1049* OR host=o1ppap1050* OR host=o1ppap1051* OR host=o1ppap1052* OR host=o1ppap1053* OR host=o1ppap1054* OR host=o1ppap1055* OR host=o1ppap1056* OR host=o1ppap1057* OR host=o1ppap1058* OR host=o1ppap1059* OR host=o1ppap1060* OR host=o1ppap1061* OR host=o1ppap1062* OR host=o3ppap1038* OR host=o3ppap1039* OR host=o3ppap1040* OR host=o3ppap1041* OR host=o3ppap1042* OR host=o3ppap1043* OR host=o3ppap1044* OR host=o3ppap1045* OR host=o3ppap1046* OR host=o3ppap1047* OR host=o3ppap1048* OR host=o3ppap1049* OR host=o3ppap1050* OR host=o3ppap1051* OR host=o3ppap1052* OR host=o3ppap1053* OR host=o3ppap1054* OR host=o3ppap1055* OR host=o3ppap1056* OR host=o3ppap1057* OR host=o3ppap1058* OR host=o3ppap1059* OR host=o3ppap1060* OR host=o3ppap1061* OR host=o3ppap1062* OR host=o3ppap1063* OR host=o3ppap1064* OR host=o3ppap1065*) earliest=-180d latest=now
-
-	| eval datacenter=if(match(host, "o1.*"), "Omaha", "Chandler") | eval pctSystem=round(pctSystem,2) | eval pctUser=round(pctUser,2) | eval pctIowait=round(pctIowait,2) | eval cpuTotal=pctSystem+pctUser+pctIowait
-
-	| timechart span=2h median(cpuTotal) by datacenter
-
->	Indexers memory usage
-
-	index=_introspection (host=o1ppap1026* OR host=o1ppap1036* OR host=o1ppap1037* OR host=o1ppap1038* OR host=o1ppap1039* OR host=o1ppap1040* OR host=o1ppap1041* OR host=o1ppap1042* OR host=o1ppap1043* OR host=o1ppap1044* OR host=o1ppap1045* OR host=o1ppap1046* OR host=o1ppap1047* OR host=o1ppap1048* OR host=o1ppap1049* OR host=o1ppap1050* OR host=o1ppap1051* OR host=o1ppap1052* OR host=o1ppap1053* OR host=o1ppap1054* OR host=o1ppap1055* OR host=o1ppap1056* OR host=o1ppap1057* OR host=o1ppap1058* OR host=o1ppap1059* OR host=o1ppap1060* OR host=o1ppap1061* OR host=o1ppap1062* OR host=o3ppap1038* OR host=o3ppap1039* OR host=o3ppap1040* OR host=o3ppap1041* OR host=o3ppap1042* OR host=o3ppap1043* OR host=o3ppap1044* OR host=o3ppap1045* OR host=o3ppap1046* OR host=o3ppap1047* OR host=o3ppap1048* OR host=o3ppap1049* OR host=o3ppap1050* OR host=o3ppap1051* OR host=o3ppap1052* OR host=o3ppap1053* OR host=o3ppap1054* OR host=o3ppap1055* OR host=o3ppap1056* OR host=o3ppap1057* OR host=o3ppap1058* OR host=o3ppap1059* OR host=o3ppap1060* OR host=o3ppap1061* OR host=o3ppap1062* OR host=o3ppap1063* OR host=o3ppap1064* OR host=o3ppap1065*) sourcetype=splunk_resource_usage component=Hostwide earliest=-4mon latest=@d
-
-	| eval datacenter=if(match(host, "o1.*"), "Omaha", "Chandler")
-
-	| timechart span=6h latest(data.mem) AS "capacity" max(data.mem_used) AS "Max Usage", median(data.mem_used) as "Median usage" by datacenter
-	
->	Threads and Load Average from the Indexers - per Datacenter
-
-	index=uxperf_na sourcetype=vmstat (host=o1ppap1026* OR host=o1ppap1036* OR host=o1ppap1037* OR host=o1ppap1038* OR host=o1ppap1039* OR host=o1ppap1040* OR host=o1ppap1041* OR host=o1ppap1042* OR host=o1ppap1043* OR host=o1ppap1044* OR host=o1ppap1045* OR host=o1ppap1046* OR host=o1ppap1047* OR host=o1ppap1048* OR host=o1ppap1049* OR host=o1ppap1050* OR host=o1ppap1051* OR host=o1ppap1052* OR host=o1ppap1053* OR host=o1ppap1054* OR host=o1ppap1055* OR host=o1ppap1056* OR host=o1ppap1057* OR host=o1ppap1058* OR host=o1ppap1059* OR host=o1ppap1060* OR host=o1ppap1061* OR host=o1ppap1062* OR host=o3ppap1038* OR host=o3ppap1039* OR host=o3ppap1040* OR host=o3ppap1041* OR host=o3ppap1042* OR host=o3ppap1043* OR host=o3ppap1044* OR host=o3ppap1045* OR host=o3ppap1046* OR host=o3ppap1047* OR host=o3ppap1048* OR host=o3ppap1049* OR host=o3ppap1050* OR host=o3ppap1051* OR host=o3ppap1052* OR host=o3ppap1053* OR host=o3ppap1054* OR host=o3ppap1055* OR host=o3ppap1056* OR host=o3ppap1057* OR host=o3ppap1058* OR host=o3ppap1059* OR host=o3ppap1060* OR host=o3ppap1061* OR host=o3ppap1062* OR host=o3ppap1063* OR host=o3ppap1064* OR host=o3ppap1065*) earliest=-180d latest=-3h@h
-
-	| eval datacenter=if(match(host, "o1.*"), "Omaha", "Chandler")
-
-	| timechart span=3h median(threads) as threads_median, median(loadAvg1mi) as loadAvg1mi_median by datacenter
-
->	Bandwidth usage in KBps per Datacenter
-
-	index=uxperf_na sourcetype=bandwidth (Name=bond0.23*) (host=o1ppap1026* OR host=o1ppap1036* OR host=o1ppap1037* OR host=o1ppap1038* OR host=o1ppap1039* OR host=o1ppap1040* OR host=o1ppap1041* OR host=o1ppap1042* OR host=o1ppap1043* OR host=o1ppap1044* OR host=o1ppap1045* OR host=o1ppap1046* OR host=o1ppap1047* OR host=o1ppap1048* OR host=o1ppap1049* OR host=o1ppap1050* OR host=o1ppap1051* OR host=o1ppap1052* OR host=o1ppap1053* OR host=o1ppap1054* OR host=o1ppap1055* OR host=o1ppap1056* OR host=o1ppap1057* OR host=o1ppap1058* OR host=o1ppap1059* OR host=o1ppap1060* OR host=o1ppap1061* OR host=o1ppap1062* OR host=o3ppap1038* OR host=o3ppap1039* OR host=o3ppap1040* OR host=o3ppap1041* OR host=o3ppap1042* OR host=o3ppap1043* OR host=o3ppap1044* OR host=o3ppap1045* OR host=o3ppap1046* OR host=o3ppap1047* OR host=o3ppap1048* OR host=o3ppap1049* OR host=o3ppap1050* OR host=o3ppap1051* OR host=o3ppap1052* OR host=o3ppap1053* OR host=o3ppap1054* OR host=o3ppap1055* OR host=o3ppap1056* OR host=o3ppap1057* OR host=o3ppap1058* OR host=o3ppap1059* OR host=o3ppap1060* OR host=o3ppap1061* OR host=o3ppap1062* OR host=o3ppap1063* OR host=o3ppap1064* OR host=o3ppap1065*) earliest=-180d latest=-3h@h
-
-	| eval datacenter=if(match(host, "o1.*"), "Omaha", "Chandler")
-
-	| timechart span=3h median(rxKB_PS) as rxKBps by datacenter
-	
-	
-My Queries
+Module - 9
 ***********
 
-index=uxperf_na host_os!=windows host_env=prod sourcetype=df MountedOn=/ OR  MountedOn=/boot OR MountedOn=/var | dedup host, MountedOn | table host  MountedOn storage_used_percent | sort -storage_used_percent | search storage_used_percent>80
+ > top
+   index=sales sourcetype=vendor_sales 
+   | top vendor
 
-Datapower logs for ucom payment and customer services.
-******************************************************
+   | top vendor limit=10
 
-	index=datapower_na host_env=prod albertsons Latency ("ucom-payment-services" OR "customer-services") NOT (qa) host_env=prod | rex "gtid\((?<gtid>\d+)\)" | rex field=req_url "/vsphere(?<vsp>[^\/]*)/(?<micro_service>[^\/]+)/(\w+)/(\w+)/(\w+)/(?<pcf_partner_id>[^\/]+)/(?<pcf_api_call>(\w+))" 
+   | top vendor product_name limit=0
 
-	Go to start of metadata 
+   clauses used in top
+   limit=int
+   countfield=string
+   percentfield=string
+   showcount=True/False
+   showperc=True/False
+   showother=True/False
+   otherstr=string
 
+   | top vendor limit=5 showperc=False countfield="Number of Sales" useother=True
+  
+   //useother - vendor not listed in top 5
 
-VPN Login and duration 
-***********************
-
-	(index=vpn_na sourcetype=juniper:sslvpn user=* action=success) OR (index=vpn_na sourcetype=f5:bigip F5user=*)  | eval user=coalesce(user,F5user)  | eval user=lower(user)   
-
-	| search user="pventi" OR
-
-	user="fcnj5tk" OR
-
-	user="fcgbh1z" OR
-
-	user="fc52ugn" OR
-
-	user="f5v5f6w" OR
-
-	user="f3whb76" OR
-
-	user="f3a7jqs" OR
-
-	user="f56o3m4" OR
-
-	user="f545ybf" 
-
-	| eval xuser=coalesce(user,F5user)  | lookup user_data UserName AS user  | eval day_of_year=strftime(_time,"%D")  |  stats earliest(_time) as time range(_time) as duration values(duration_in_hhmmss) as duration_in_hhmmss values(sourcetype) as sourcetype values(EmployeeID) as employee_id values(FirstName) as FirstName values(LastName) as LastName by xuser,day_of_year |   eval duration_in_hhmmss=tostring(duration, "duration")  | rename xuser TO user  | eval user=lower(user)  | makemv sourcetype  | table day_of_year user employee_id FirstName LastName  duration duration_in_hhmmss sourcetype
-	
-Badge Swipe detail
-*******************
+   // by clause
+   / top product_name by vendor limit=3 countfield="Number of Sales" showperc=False
 
 
-	index=acs_na  sourcetype=eacs 
+> rare same options like top command
+  
+> stats 
+  stats functions(count,distinct count, sum, average, list, values)
 
-	personnel_fdc_employeeid="290614"
+  index=sales sourcetype=vendor_sales
+  | stats count
 
-	OR personnel_fdc_employeeid="290069"
+  | stats count as "Total Sells By Vendors"
 
-	| lookup user_data EmployeeID AS personnel_fdc_employeeid | eval hour =
+  | stats count as "Total Sells By Vendors" by product_name
 
-	tonumber(strftime(_time,"%H")) | eval time=strftime(_time,"%H:%M:%S") | eval dow = tonumber(strftime(_time,"%w")) 
+  | stats count as "Total Sells By Vendors" by product_name,categoryid,sale_price
 
-	| eval svp_name=ManagerFirstName7 + "," + ManagerLastName7 | eval mgm_name=ManagerFirstName8 +"," + ManagerLastName8 | eval Manager=ManagerFirstName5 +  "," + ManagerLastName5 
+  //passing field to the count
 
-	| search NOT 
+  index=web sourcetype=access_combined
+  | stats count(action) as ActionEvents
 
-	[| inputlookup holidays.csv  | table holiday | rename holiday as Date] 
+  //Adding another count
+  index=web sourcetype=access_combined
+  | stats count(action) as ActionEvents,count as "Total Events"
 
-	| eval day_of_swipe=(date_month + " "+ date_mday + " "+ date_wday ) 
-
-	| eval day_of_swipe=(date_month + " "+ date_mday + " "+ date_wday ) 
-
-	| eval Month=strftime(_time,"%b") | eval day_of_year=strftime(_time,"%j") 
-
-	| eval perc_present=round((days_swiped/work_days*100)) | eval day_of_swipe=(date_month+ " "+ date_mday + " "+ date_wday ) 
-
-	| stats values(ManagerFirstName5) as ManagerFirstName5 values(JobTitle) as JobTitle values(City) as City values(StreetAddress) as StreetAddress first(personnel_fdc_employeeid) as EmployeeID values(day_of_year) as day_of_year values(time) as times min(time) as min_time max(time) as max_time count(dvc_name) as swipes values(dvc_name) as dvc_name by day_of_swipe,nick
-
-	| table EmployeeID nick JobTitle City StreetAddress day_of_year min_time max_time times day_of_swipe swipes dvc_name
-
-index os_na
-*************
-
-AIX Memory Utilization
-
-	(index=os_na OR index=uxperf_na) host=a* sourcetype=vmstat earliest=-1h NOT waitThreads | rex field=_raw "(?<memTotalMB>\d+|\d+\.\d+|\?)\s+(?<memFreeMB>\d+|\d+\.\d+|\?)\s+(?<memUsedMB>\d+|\d+\.\d+|\?)\s+(?             <memFreePct>\d+|\d+\.\d+|\?)\s+(?<memUsedPct>\d+|\d+\.\d+|\?)\s+(?<pgPageOut>\d+|\d+\.\d+|\?)\s+(?<swapUsedPct>\d+|\d+\.\d+|\?)\s+(?<pgSwapOut>\d+|\d+\.\d+|\?)\s+(?<cSwitches>\d+|\d+\.\d+|\?)\s+(?<interrupts>\d+|\d+\.\d+|\?)\s+(?<forks>\d+|\d+\.\d+|\?)\s+(?<processes>\d+|\d+\.\d+|\?)\s+(?<threads>\d+|\d+\.\d+|\?)\s+(?<loadAvg1mi>\d+|\d+\.\d+|\?)"
-	
-User logins and searches per day
-*********************************
+  //Distict count(dc) or dc interchangable
+  index=sales sourcetype=vendor_sales
+  | stats distinct_count(product_name) as "Number of games for sale by vendors" by sale_price
 
 
-	index=_introspection sourcetype=splunk_resource_usage data.search_props.sid::* data.search_props.mode!=RT (host=o3qvap1001* OR host=o3qvap1002* OR host=o1qvap1013* OR host=o1qvap1017* OR host=o3qvap1000* OR host=o3qvap1004* OR host=o1qvap1015* OR host=o1ppap1031* OR host=o3ppap1033* OR host=o1ppap1029* OR host=o1ppap1074* OR host=o3ppap1031* OR host=o3ppap1077* OR host=o1ppap1028* OR host=o1ppap1064* OR host=o1ppap1065* OR host=o1ppap1066* OR host=o1ppap1067* OR host=o1ppap1068* OR host=o3ppap1030* OR host=o3ppap1067* OR host=o3ppap1068* OR host=o3ppap1069* OR host=o3ppap1070* OR host=o1ppap1030* OR host=o1ppap1077* OR host=o3ppap1032* OR host=o3ppap1080*)
+  //sum usage
+  index=sales sourcetype=vendor_sales
+  | stats sum(price) as "Gross Sales" by product_name
+ 
+  | stats count as "Units Sold" sum(price) as "Gross Sales" by product_name
 
-	| rename data.search_props.type AS search_type | eval host=replace(lower(host), ".1dc.com", "") | eval search_type_adhoc=if(like(search_type, "ad-hoc"),"1","0") | eval search_type_scheduled=if(like(search_type, "scheduled"),"1","0") 
+  //avg usage
+  index=sales sourcetype=vendor_sales
+  | stats avg(sale_price) as "Average Selling Price" by product_name
+  | stats count as "Units Sold" 
+    avg(price) as "Average Retail Price"
+    avg(sale_price) as "Avg Selling Price" by product_name
 
-	| eval search_type_report=if(like(search_type, "report acceleration"),"1","0") | eval search_total=search_type_adhoc+search_type_scheduled+search_type_report | eval search_not_adhoc=search_type_scheduled+search_type_report 
+  //List Usage
+  index=bcgassets sourcetype=asset_list
+  | stats list(Asset) as "company assets" by Employee
 
-	| timechart span=1d sum(search_type_scheduled) AS scheduled_searches, sum(search_type_adhoc) AS adhoc_searches, sum(search_type_report) AS report_accelerations | addtotals col=f row=t fieldname=total_searches
-	
-> Now on the users logins, we are not seeing a significant change over time. The next chart shows a comparison between the last 4 months. The average is 3440 user's logins per week.
+  //value Usage - only returns unique value
+  index=network sourcetype=cisco_wsa_squid
+  | stats values(s_hostname) by cs_username
+  
+  
 
-	(index=_audit info=succeeded action=success) (host=o3qvap1001* OR host=o3qvap1002* OR host=o1qvap1013* OR host=o1qvap1017* OR host=o3qvap1000* OR host=o3qvap1004* OR host=o1qvap1014* OR host=o1qvap1015* OR host=o1ppap1031* OR host=o3ppap1033* OR host=o3pvap1002* OR host=o1ppap1029* OR host=o1ppap1074* OR host=o3ppap1031* OR host=o3ppap1077* OR host=o1ppap1028* OR host=o1ppap1064* OR host=o1ppap1065* OR host=o1ppap1066* OR host=o1ppap1067* OR host=o1ppap1068* OR host=o3ppap1030* OR host=o3ppap1067* OR host=o3ppap1068* OR host=o3ppap1069* OR host=o3ppap1070* OR host=o1ppap1030* OR host=o1ppap1077* OR host=o3ppap1032* OR host=o3ppap1080*) earliest=-121d@d latest=@d | timechart limit=0 span=1h count | timewrap mon
+
+  
+
+
+
 	
  
