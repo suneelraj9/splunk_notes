@@ -114,7 +114,39 @@ Module - 9
   index=network sourcetype=cisco_wsa_squid
   | stats values(s_hostname) by cs_username
   
-  
+lookup
+*******
+
+add additional fields and numbers
+
+ > Need to upload the file locally from the desktop
+ > | inputlookup http_status.csv
+ 
+ Define lookup
+ *************
+ Go to settings-> lookup
+ select lookup definitions
+ 
+ Use lookup search query
+ ***********************
+ index=web sourcetype=access_combined NOT status=200
+ | lookup http_status code as status,
+ OUTPUT code as "HTTP Code",
+ description as "HTTP Description"
+ 
+ > Do not want override we can use 'OUTPUTNEW' class
+ OUTPUTNEW code as "HTTP Code"
+ 
+ index=web sourcetype=access_combined NOT status=200
+ | lookup http_status code as status,
+ OUTPUTNEW code as "HTTP Code",
+ description as "HTTP Description"
+ | table host, "HTTP Code", "HTTP Description"
+ 
+ >>>Automatic lookup
+ setting -> lookup
+ 
+ 
 
 
   
