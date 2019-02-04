@@ -9,6 +9,18 @@ known issues
 
 memory overcommiting
   https://docs.splunk.com/Documentation/Splunk/7.2.3/ReleaseNotes/LinuxmemoryovercommittingandSplunkcrashes
+  
+install splunk on windows through cli
+  https://docs.splunk.com/Documentation/Splunk/latest/Installation/InstallonWindowsviathecommandline
+  
+Secure Splunk Web with your own certificate
+  https://docs.splunk.com/Documentation/Splunk/latest/Security/SecureSplunkWebusingasignedcertificate
+  
+Components and the data pipeline
+  https://docs.splunk.com/Documentation/Splunk/latest/Deploy/Componentsofadistributedenvironment
+  
+Other manuals for the Splunk platform administrator
+  https://docs.splunk.com/Documentation/Splunk/latest/Admin/Whatsinthismanual
 
 
 splunk queries
