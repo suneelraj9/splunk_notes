@@ -3,6 +3,12 @@ splunk URL
 
 Base app>
   Dashboard examples -> https://splunkbase.splunk.com/app/1603/
+  
+known issues
+  THP Disable -> https://docs.splunk.com/Documentation/Splunk/latest/ReleaseNotes/SplunkandTHP
+
+memory overcommiting
+  https://docs.splunk.com/Documentation/Splunk/7.2.3/ReleaseNotes/LinuxmemoryovercommittingandSplunkcrashes
 
 
 splunk queries
