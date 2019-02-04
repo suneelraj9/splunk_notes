@@ -21,7 +21,18 @@ Components and the data pipeline
   
 Other manuals for the Splunk platform administrator
   https://docs.splunk.com/Documentation/Splunk/latest/Admin/Whatsinthismanual
+  
+Archive indexed data
+  https://docs.splunk.com/Documentation/Splunk/latest/Indexer/Automatearchiving
 
+Restore archived indexed data
+  https://docs.splunk.com/Documentation/Splunk/latest/Indexer/Restorearchiveddata
+  
+indexes.conf.spec
+  https://docs.splunk.com/Documentation/Splunk/latest/admin/Indexesconf#indexes.conf.spec
+  
+Authentication methods
+  https://docs.splunk.com/Documentation/Splunk/latest/Security/Hardeningstandards
 
 splunk queries
 ***************
