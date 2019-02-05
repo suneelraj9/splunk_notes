@@ -32,7 +32,23 @@ indexes.conf.spec
   https://docs.splunk.com/Documentation/Splunk/latest/admin/Indexesconf#indexes.conf.spec
   
 Authentication methods
-  https://docs.splunk.com/Documentation/Splunk/latest/Security/Hardeningstandards
+  https://docs.splunk.com/Documentation/Splunk/latest/Security/Hardeningstandards 
+  
+Plan a deployment
+  https://docs.splunk.com/Documentation/Splunk/6.2.1/Updating/Planadeployment
+  
+Deploy a heavy forwarder
+  https://docs.splunk.com/Documentation/Splunk/latest/Forwarding/Deployaheavyforwarder
+  
+About securing data from forwarders
+  https://docs.splunk.com/Documentation/Splunk/latest/Security/Aboutsecuringdatafromforwarders
+  
+About the Monitoring Console
+  https://docs.splunk.com/Documentation/Splunk/latest/DMC/DMCoverview
+  
+
+  
+
 
 splunk queries
 ***************
