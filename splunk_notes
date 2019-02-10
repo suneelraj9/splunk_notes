@@ -304,8 +304,76 @@ eval
 	
    eval convert values
    ===================
-   
+   index=web soucetype=access* product_name=* action=purchase
+	| stats sum(price) as total_list_price,
+	sum(sale_price) as total_sale_price by product_name
+	|eval total_list_price = "$"+ tostring(total_list_price)
 
+   fieldformat command (confusion)
+   ===================
+   
+   Multiple eval commands
+   ======================
+   
+   index=web sourcetype=access_combined price=*
+	| stats values(price) as list_price,
+	values(sale_price) as sale_price by product_name
+	| eval current_discount = (((list_price-sale_price/list_price)*100)
+	| eval new_discount = (current_discount - 5)
+	| eval new_sale_price=list_price - (list_price * (new_discount/100))
+	| eval price_change_revenue=(new_sale_price-sale_price)
+
+   eval command if function
+   ========================
+   
+    if (x,y,z)
+      x-boolean expression
+      y- if true it will evaluate
+      z- if false it will evaluate
+      y,z -  Must be in double quotes if not numerical
+
+   ex: index=sales sourcetype=vendor_sales
+	| eval SalesTerritory=
+	if(VendorID<4000,"Northe America", "Rest of the World")
+	| stats sum(price) as TotalRevenue by SalesTerritory
+
+   eval command case function
+   ==========================
+   Allows you to take multiple boolean expressions and return the corresponding
+   argument that is true
+
+   ex: index=web sourcetype=access_combined
+	| eval httpCategory=case(status>=200 AND status<300, "Success")
+
+      We can add more booleans
+     status>=300 AND status<400, "Redirect",
+     status>=400 AND status<500, "Client Error",
+     status>=500,"Server Error")
+
+    using Eval with stats command
+    ==============================
+   index=web sourcetype=access_combined 
+	| status count(eval(status<300)) as "Success",
+	count(eval(status>=400 AND status<500)) as "Client Error",
+	count(eval(status>500)) as "Server Error"
+
+    where command
+    ==============
+    index=network sourcetype=cisco_wsa_squid
+	| status count(eval(usage="Personal")) as Personal,
+	count(eval(usage="Business")) as Business by username
+	| where Personal>Business 
+	| where username!="username"
+	|sort -personal
+
+    Fillnull command
+    ================
+    index=sales sourcetype=vendor_sales
+	| chart sum(price) over product_name by VendorCountry
+	| fillnull
+
+     or using a value argument any string can be used
+	fillnull value="nothing to see here"
 
 	
  
