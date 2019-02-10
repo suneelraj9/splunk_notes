@@ -402,3 +402,19 @@ Correlating events
 	index=network sourcetype=cisco_esa REJECT
 	| transaction mid dcid icid
 	| search REJECT
+	
+Naming Convention
+*****************
+	Group
+	Type
+	Platform
+	Category
+	Time
+	Description
+   Ex:OPS_WFA_Network_Security_na_IPwhoisAction
+
+  knowledge object permissions
+	> Private - Only that user
+	> Specific App - Power user, Admin can grant read and write perissions
+	> All Apps - admin can only one grant ead and write
+
