@@ -375,5 +375,30 @@ eval
      or using a value argument any string can be used
 	fillnull value="nothing to see here"
 
-	
+Correlating events
+********************
+
+     Transaction Command
+     ===================
+	index=web sourcetype=access_combined
+	| transaction clientip
+        | table clientip,action,product_name
  
+     Transaction Command Definitions
+     ===============================
+      maxspan, maximum total time between earliest and latest events 
+	maxpause, max total time between events
+	startswith,  - terms, field values, evaluations
+	endswith - terms, field values, evaluations
+
+     Ex:
+	index=web sourcetype=access_combined
+	| transaction clientip
+	startswith="addtocart" endswith="purchase"
+	| table clientip,action,product_name
+
+     Investigate with transactions
+     =============================
+	index=network sourcetype=cisco_esa REJECT
+	| transaction mid dcid icid
+	| search REJECT
