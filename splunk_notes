@@ -199,10 +199,112 @@ add additional fields and numbers
  setting -> lookup
  
  
-
+>>Fundamentails (Part-2)
+************************
 
   
+iplocation - city
+	     country
+	     Region, Latitude, Longitude
 
+     example: index=security sourcetype=linux_secure action=success src_ip!=10.*       
+		| iplocation src_ip
+
+
+Using Geostats command
+**********************
+
+  example: index=sales sourcetype=vendor_sales
+	 | geostats latfield=VendorLatitude longfield=VendorLongitude count
+             
+             or count by product_name globallimit=10
+
+Using geostats with iplocation
+*******************************
+
+   index=sales sourcetype=linux_secure action=success src_ip!=10.*
+	| iplocation src_ip
+	| geostats latfield=lat longfield=lon count
+
+choropleth Maps
+***************
+
+    Will need Keyhole Markup Language File(.kmz)
+    Splunk ships two files: >> geo_us_states.kmz
+			    >> geo_countries.kmz
+
+   Ex: index=sales sourcetype=vendor_sales VendorID>=5000 AND VendorID<=5055 
+	| stats count as Sales by VendorCountry
+	| geom geo_countries featureField=VendorCountry
+
+singlevalue visualization
+**************************
+
+    index=web sourcetype=access_combined action=purchase 
+	| stats sum(price) as total
+
+trendline commmand
+******************
+     index=web sourcetype=access_combined action=purchase status=200
+	| timechart sum(price) as sales
+	| trendline wma2(sales) as trend
+
+      2-> Two days average value took it out
+    Trendtype:sma -> sum moving average
+	      ema -> exponential moving average
+	      wma -> weighted moving average
+
+  chartoverlay will be useful when using trendline
+
+
+field format
+************
+
+  customnize it in many ways using format option
+
+	index=web sourcetype=access_combined file=*
+	| chart sum(bytes) over host by file
+
+
+Addtotals
+**********
+
+   index=web sourcetype=access_combined file=*
+	| chart sum(bytes) over host by file
+	| addtotals
+
+       or | addtotals col=true label="Total" labelfield="host"
+
+    fieldname="Total by host"
+
+
+eval
+*****
+
+   supports - arithmetic, Concatenation, Boolean Operators supported
+
+  ex: index=network sourcetype=cisco_wsa_squid 
+	| stats sum(sc_bytes) as Bytes by usage
+	| eval bandwidth =  Bytes/1024/102
+
+     or  wrapping of calculation in round function
+	| eval bandwidth = round(Bytes/1024/1024,2)
+	| sort -bandwidth
+	| rename bandwidth as "Bandwidth (MB)"
+	| fields - Bytes
+   
+   eval mathematical functions
+   ===========================
+   index=web sourcetype=access_c* product_name=* action=purchase
+	| stats sum(price) as total_list_price,	
+	  sum(sale_price) as total_sale_price by product_name
+	| eval discount= (total_list_price - total_sale_price/total_list_price)*100
+	| sort - discount
+	| eval discount = discount."%"
+	
+   eval convert values
+   ===================
+   
 
 
 	
