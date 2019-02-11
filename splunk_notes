@@ -418,3 +418,22 @@ Naming Convention
 	> Specific App - Power user, Admin can grant read and write perissions
 	> All Apps - admin can only one grant ead and write
 
+Tags and Event types
+*********************
+
+ Tag -> click event option -> Action option and tag the name of the field
+   after placing tags search by
+   index=security tag=SF
+
+  Event type builder
+  ==================
+  index=web sourcetype=access_combined action=purchase categoryId*
+   > select build event type
+   
+   Which search would limit an "alert" tag to the "host" field?
+	tag::host=alert
+
+   These allow you to categorize events based on search terms.
+	Event Types
+
+    Tags are descriptive names for -> key value pairs
