@@ -437,3 +437,31 @@ Tags and Event types
 	Event Types
 
     Tags are descriptive names for -> key value pairs
+    
+ Macros
+******
+
+  Reusable search strings or portions of search strings
+  Useful for frequest searches with complicated search syntax
+  store entire search strings
+  Time range independent
+   pass arguments to the search
+  
+  create macro
+  =============
+
+  ex: index=sales sourcetype=vendor_sales
+	| stats sum(sale_price) as total_sales by Vendor
+	|eval total_sales = "$" + tostring(round(total_sales,2), "commas")
+
+   settings -> advanced search -> add new macro
+   place it over there in Definition -> eval total_sales = "$" + tostring(round(total_sales,2), "commas")
+
+   index=sales sourcetype=vendor_sales
+	| stats sum(sale_price) as total_sales by Vendor
+	| 'convertUSD'
+
+   Macro argument
+   ==============
+
+   Multiple arguments
