@@ -1,50 +1,50 @@
 splunk URL
 **********
 
-Base app>
-  Dashboard examples -> https://splunkbase.splunk.com/app/1603/
-  
-known issues
-  THP Disable -> https://docs.splunk.com/Documentation/Splunk/latest/ReleaseNotes/SplunkandTHP
+	Base app>
+	  Dashboard examples -> https://splunkbase.splunk.com/app/1603/
 
-memory overcommiting
-  https://docs.splunk.com/Documentation/Splunk/7.2.3/ReleaseNotes/LinuxmemoryovercommittingandSplunkcrashes
-  
-install splunk on windows through cli
-  https://docs.splunk.com/Documentation/Splunk/latest/Installation/InstallonWindowsviathecommandline
-  
-Secure Splunk Web with your own certificate
-  https://docs.splunk.com/Documentation/Splunk/latest/Security/SecureSplunkWebusingasignedcertificate
-  
-Components and the data pipeline
-  https://docs.splunk.com/Documentation/Splunk/latest/Deploy/Componentsofadistributedenvironment
-  
-Other manuals for the Splunk platform administrator
-  https://docs.splunk.com/Documentation/Splunk/latest/Admin/Whatsinthismanual
-  
-Archive indexed data
-  https://docs.splunk.com/Documentation/Splunk/latest/Indexer/Automatearchiving
+	known issues
+	  THP Disable -> https://docs.splunk.com/Documentation/Splunk/latest/ReleaseNotes/SplunkandTHP
 
-Restore archived indexed data
-  https://docs.splunk.com/Documentation/Splunk/latest/Indexer/Restorearchiveddata
-  
-indexes.conf.spec
-  https://docs.splunk.com/Documentation/Splunk/latest/admin/Indexesconf#indexes.conf.spec
-  
-Authentication methods
-  https://docs.splunk.com/Documentation/Splunk/latest/Security/Hardeningstandards 
-  
-Plan a deployment
-  https://docs.splunk.com/Documentation/Splunk/6.2.1/Updating/Planadeployment
-  
-Deploy a heavy forwarder
-  https://docs.splunk.com/Documentation/Splunk/latest/Forwarding/Deployaheavyforwarder
-  
-About securing data from forwarders
-  https://docs.splunk.com/Documentation/Splunk/latest/Security/Aboutsecuringdatafromforwarders
-  
-About the Monitoring Console
-  https://docs.splunk.com/Documentation/Splunk/latest/DMC/DMCoverview
+	memory overcommiting
+	  https://docs.splunk.com/Documentation/Splunk/7.2.3/ReleaseNotes/LinuxmemoryovercommittingandSplunkcrashes
+
+	install splunk on windows through cli
+	  https://docs.splunk.com/Documentation/Splunk/latest/Installation/InstallonWindowsviathecommandline
+
+	Secure Splunk Web with your own certificate
+	  https://docs.splunk.com/Documentation/Splunk/latest/Security/SecureSplunkWebusingasignedcertificate
+
+	Components and the data pipeline
+	  https://docs.splunk.com/Documentation/Splunk/latest/Deploy/Componentsofadistributedenvironment
+
+	Other manuals for the Splunk platform administrator
+	  https://docs.splunk.com/Documentation/Splunk/latest/Admin/Whatsinthismanual
+
+	Archive indexed data
+	  https://docs.splunk.com/Documentation/Splunk/latest/Indexer/Automatearchiving
+
+	Restore archived indexed data
+	  https://docs.splunk.com/Documentation/Splunk/latest/Indexer/Restorearchiveddata
+
+	indexes.conf.spec
+	  https://docs.splunk.com/Documentation/Splunk/latest/admin/Indexesconf#indexes.conf.spec
+
+	Authentication methods
+	  https://docs.splunk.com/Documentation/Splunk/latest/Security/Hardeningstandards 
+
+	Plan a deployment
+	  https://docs.splunk.com/Documentation/Splunk/6.2.1/Updating/Planadeployment
+
+	Deploy a heavy forwarder
+	  https://docs.splunk.com/Documentation/Splunk/latest/Forwarding/Deployaheavyforwarder
+
+	About securing data from forwarders
+	  https://docs.splunk.com/Documentation/Splunk/latest/Security/Aboutsecuringdatafromforwarders
+
+	About the Monitoring Console
+	  https://docs.splunk.com/Documentation/Splunk/latest/DMC/DMCoverview
   
 
   
@@ -52,210 +52,274 @@ About the Monitoring Console
 
 splunk queries
 ***************
-> write a search to pull the OS distribution of all hosts
-   index=_internal fwdType="*" | dedup hostname | stats count by os, version
-   
-> To check the process states
-   index=os sourcetype=ps rhnsd|dedup host|stats count as runningCount|eval rhnsdMissing=(10-runningCount)| table rhnsdMissing
-   
-> Combine three different source types(CPU,Memory, Network Utilization as perecentage) 
-  index=xyz (sourcetype=CPUtime OR sourcetype=Memory OR sourcetype=Localnetwork)  (counter="% Processor Time" OR counter="Committed Bytes" OR counter="Bytes Received/Sec") | chart  avg(Value) as values over host by counter
-  
-> create and trigger an alert if the CPU usage is constantly 100% for the past 10 minutes
-  index=* host=zzzz sourcetype="Perfmon:CPU" source="Perfmon:CPU" counter="% Processor Time" | timechart span=10m limit=0 avg(Value) as "% of CPU Usage"
-  
-> 
+	> write a search to pull the OS distribution of all hosts
+	   index=_internal fwdType="*" | dedup hostname | stats count by os, version
+
+	> To check the process states
+	   index=os sourcetype=ps rhnsd|dedup host|stats count as runningCount|eval rhnsdMissing=(10-runningCount)| table rhnsdMissing
+
+	> Combine three different source types(CPU,Memory, Network Utilization as perecentage) 
+	  index=xyz (sourcetype=CPUtime OR sourcetype=Memory OR sourcetype=Localnetwork)  (counter="% Processor Time" OR counter="Committed Bytes" OR counter="Bytes Received/Sec") | chart  avg(Value) as values over host by counter
+
+	> create and trigger an alert if the CPU usage is constantly 100% for the past 10 minutes
+	  index=* host=zzzz sourcetype="Perfmon:CPU" source="Perfmon:CPU" counter="% Processor Time" | timechart span=10m limit=0 avg(Value) as "% of CPU Usage"
+
+	> 
 
 
 
 splunk forwarder
 ****************
- >> Enable the splunk service during boot:
-   /opt/splunkforwarder/bin/splunk enable boot-start
- >> Splunk add forwarder through CLI
-   /opt/splunkforwarder/bin/splunk add forward_server 10.x.x.x:9997
- >> Add monitor of the log file
-   /opt/splunkforwarder/bin/splunk add monitor /opt/log/www1
- >> 
+	 >> Enable the splunk service during boot:
+	   /opt/splunkforwarder/bin/splunk enable boot-start
+	 >> Splunk add forwarder through CLI
+	   /opt/splunkforwarder/bin/splunk add forward_server 10.x.x.x:9997
+	 >> Add monitor of the log file
+	   /opt/splunkforwarder/bin/splunk add monitor /opt/log/www1
+	 >> 
  
  hardware errors key words
  *************************
  
- "hardware error" AND 
+	 "hardware error" AND 
  
- 
- 
-	
 Splunk tutorial
 ***************
 	
 Module - 9
 ***********
 
- > top
-   index=sales sourcetype=vendor_sales 
-   | top vendor
+	 > top
+	   index=sales sourcetype=vendor_sales 
+	   | top vendor
 
-   | top vendor limit=10
+	   | top vendor limit=10
 
-   | top vendor product_name limit=0
+	   | top vendor product_name limit=0
 
-   clauses used in top
-   limit=int
-   countfield=string
-   percentfield=string
-   showcount=True/False
-   showperc=True/False
-   showother=True/False
-   otherstr=string
+	   clauses used in top
+	   limit=int
+	   countfield=string
+	   percentfield=string
+	   showcount=True/False
+	   showperc=True/False
+	   showother=True/False
+	   otherstr=string
 
-   | top vendor limit=5 showperc=False countfield="Number of Sales" useother=True
+	   | top vendor limit=5 showperc=False countfield="Number of Sales" useother=True
+
+	   //useother - vendor not listed in top 5
+
+	   // by clause
+	   / top product_name by vendor limit=3 countfield="Number of Sales" showperc=False
+
+
+	> rare same options like top command
+
+	> stats 
+	  stats functions(count,distinct count, sum, average, list, values)
+
+	  index=sales sourcetype=vendor_sales
+	  | stats count
+
+	  | stats count as "Total Sells By Vendors"
+
+	  | stats count as "Total Sells By Vendors" by product_name
+
+	  | stats count as "Total Sells By Vendors" by product_name,categoryid,sale_price
+
+	  //passing field to the count
+
+	  index=web sourcetype=access_combined
+	  | stats count(action) as ActionEvents
+
+	  //Adding another count
+	  index=web sourcetype=access_combined
+	  | stats count(action) as ActionEvents,count as "Total Events"
+
+	  //Distict count(dc) or dc interchangable
+	  index=sales sourcetype=vendor_sales
+	  | stats distinct_count(product_name) as "Number of games for sale by vendors" by sale_price
+
+
+	  //sum usage
+	  index=sales sourcetype=vendor_sales
+	  | stats sum(price) as "Gross Sales" by product_name
+
+	  | stats count as "Units Sold" sum(price) as "Gross Sales" by product_name
+
+	  //avg usage
+	  index=sales sourcetype=vendor_sales
+	  | stats avg(sale_price) as "Average Selling Price" by product_name
+	  | stats count as "Units Sold" 
+	    avg(price) as "Average Retail Price"
+	    avg(sale_price) as "Avg Selling Price" by product_name
+
+	  //List Usage
+	  index=bcgassets sourcetype=asset_list
+	  | stats list(Asset) as "company assets" by Employee
+
+	  //value Usage - only returns unique value
+	  index=network sourcetype=cisco_wsa_squid
+	  | stats values(s_hostname) by cs_username
   
-   //useother - vendor not listed in top 5
+	lookup
+	*******
 
-   // by clause
-   / top product_name by vendor limit=3 countfield="Number of Sales" showperc=False
+		add additional fields and numbers
 
+		 > Need to upload the file locally from the desktop
+		 > | inputlookup http_status.csv
 
-> rare same options like top command
-  
-> stats 
-  stats functions(count,distinct count, sum, average, list, values)
+		 Define lookup
+		 *************
+		 Go to settings-> lookup
+		 select lookup definitions
 
-  index=sales sourcetype=vendor_sales
-  | stats count
+		 Use lookup search query
+		 ***********************
+		 index=web sourcetype=access_combined NOT status=200
+		 | lookup http_status code as status,
+		 OUTPUT code as "HTTP Code",
+		 description as "HTTP Description"
 
-  | stats count as "Total Sells By Vendors"
+		 > Do not want override we can use 'OUTPUTNEW' class
+		 OUTPUTNEW code as "HTTP Code"
 
-  | stats count as "Total Sells By Vendors" by product_name
+		 index=web sourcetype=access_combined NOT status=200
+		 | lookup http_status code as status,
+		 OUTPUTNEW code as "HTTP Code",
+		 description as "HTTP Description"
+		 | table host, "HTTP Code", "HTTP Description"
 
-  | stats count as "Total Sells By Vendors" by product_name,categoryid,sale_price
-
-  //passing field to the count
-
-  index=web sourcetype=access_combined
-  | stats count(action) as ActionEvents
-
-  //Adding another count
-  index=web sourcetype=access_combined
-  | stats count(action) as ActionEvents,count as "Total Events"
-
-  //Distict count(dc) or dc interchangable
-  index=sales sourcetype=vendor_sales
-  | stats distinct_count(product_name) as "Number of games for sale by vendors" by sale_price
-
-
-  //sum usage
-  index=sales sourcetype=vendor_sales
-  | stats sum(price) as "Gross Sales" by product_name
- 
-  | stats count as "Units Sold" sum(price) as "Gross Sales" by product_name
-
-  //avg usage
-  index=sales sourcetype=vendor_sales
-  | stats avg(sale_price) as "Average Selling Price" by product_name
-  | stats count as "Units Sold" 
-    avg(price) as "Average Retail Price"
-    avg(sale_price) as "Avg Selling Price" by product_name
-
-  //List Usage
-  index=bcgassets sourcetype=asset_list
-  | stats list(Asset) as "company assets" by Employee
-
-  //value Usage - only returns unique value
-  index=network sourcetype=cisco_wsa_squid
-  | stats values(s_hostname) by cs_username
-  
-lookup
-*******
-
-add additional fields and numbers
-
- > Need to upload the file locally from the desktop
- > | inputlookup http_status.csv
- 
- Define lookup
- *************
- Go to settings-> lookup
- select lookup definitions
- 
- Use lookup search query
- ***********************
- index=web sourcetype=access_combined NOT status=200
- | lookup http_status code as status,
- OUTPUT code as "HTTP Code",
- description as "HTTP Description"
- 
- > Do not want override we can use 'OUTPUTNEW' class
- OUTPUTNEW code as "HTTP Code"
- 
- index=web sourcetype=access_combined NOT status=200
- | lookup http_status code as status,
- OUTPUTNEW code as "HTTP Code",
- description as "HTTP Description"
- | table host, "HTTP Code", "HTTP Description"
- 
- >>>Automatic lookup
- setting -> lookup
+		 >>>Automatic lookup
+		 setting -> lookup
  
  
 >>Fundamentails (Part-2)
 ************************
+   Buckets - Configurable maximum timespan, size
+   ********
+	   HOT - WRITABLE - Reaches max size, time span reached, indexer restarted
+	   WARM - Hot bucket rooling to warm bucket.Closed,renameed, changed to read only (ex:db_youngesttimestamp_oldtimestamp)
+           COLD - Warm bucket rolling to cold bucket after reaching max size and time span
+				It stored in different locations which is less spped hard drive to cost optimize
 
-  
-iplocation - city
-	     country
-	     Region, Latitude, Longitude
+	  > Prioroty of search options to get best search results
+	         time
+		 index
+		 source
+		 host
+		 sourcetype
+	 
+  Visualization Intro
+  ********************
 
-     example: index=security sourcetype=linux_secure action=success src_ip!=10.*       
-		| iplocation src_ip
+	index=sales sourcetype=vendor_sales
+	| stats count(inline) as "UnitsSold" by product_name
+	
+	index=sales sourcetype=vendor_sales	
+	| timechart count(inline) as "Units Sold" by product_name limit=5
+	
+	Chart
+	*****
+	  over, by class
+	  index=web sourcetype=access_combined status>299
+	  | chart count over status by host
+	  
+	  > Two options can be used under x-axis unlike stats command
+	    index=web sourcetype=access_combined status>299
+	    | chart count by status,host
+		
+	   > index=web sourcetype=access_combined status>299
+	    | chart count over host by product_name usenull=f useother=f limit=5
+		  
+	 Timechart
+         *********
+	    >index=sales sourcetype=vendor_sales
+	     | timechart count 
+		
+	     >index=sales sourcetype=vendor_sales
+	     | timechart count by product_name
+		
+	      stats function can be applicable to timechart command - sum(price), avg(price)
+		
+		>index=sales sourcetype=vendor_sales
+		| timechart sum(price) by product_name [we can user limit, usenull,useother]
+		
+		>index=sales sourcetype=vendor_sales
+		| timechart span=12hr sum(price) by product_name
+
+	  Scatter chart - shows the relation between two distinct values
+	  *************
+		Ex: index=sales sourcetype=vendor_sales VendorID>=4000 AND VendorID<=8999
+		    | stats count as "Units Sold", sum(sale_price) as "Total Sales" by VendorCountry,product_name
+
+	  Bubble chart - we can view third dimension of data
+	  ************
+		 Ex: index=sales sourcetype=vendor_sales
+		    |VendorID >=4000 AND VendorID <= 8999
+		    |stats sum(sale_price) as "Total", count as "#Sold"
+		    by date_hour | sort date_hour
+		    |rename date_hour as "Time" | table "Time" "#Sold" "Total"
+
+   Advanced visualization
+   ***********************
+	  iplocation - city
+             	       country
+		       Region, 
+		       Latitude, 
+		       Longitude
+
+	     example: index=security sourcetype=linux_secure action=success src_ip!=10.*       
+		      | iplocation src_ip
 
 
-Using Geostats command
-**********************
+          Using Geostats command
+          **********************
+ 	      Aggregates geographical data for use on a map visualization
+	    
+		    example: index=sales sourcetype=vendor_sales
+			     | geostats latfield=VendorLatitude longfield=VendorLongitude count
 
-  example: index=sales sourcetype=vendor_sales
-	 | geostats latfield=VendorLatitude longfield=VendorLongitude count
-             
-             or count by product_name globallimit=10
+			or count by product_name globallimit=10
 
-Using geostats with iplocation
-*******************************
+	  Using geostats with iplocation
+	  *******************************
 
-   index=sales sourcetype=linux_secure action=success src_ip!=10.*
-	| iplocation src_ip
-	| geostats latfield=lat longfield=lon count
+		   index=sales sourcetype=linux_secure action=success src_ip!=10.*
+		   | iplocation src_ip
+		   | geostats latfield=lat longfield=lon count
 
-choropleth Maps
-***************
+          choropleth Maps
+          ***************
 
-    Will need Keyhole Markup Language File(.kmz)
-    Splunk ships two files: >> geo_us_states.kmz
-			    >> geo_countries.kmz
+		    Will need Keyhole Markup Language File(.kmz)
+		    Splunk ships two files: >> geo_us_states.kmz
+					    >> geo_countries.kmz
 
-   Ex: index=sales sourcetype=vendor_sales VendorID>=5000 AND VendorID<=5055 
-	| stats count as Sales by VendorCountry
-	| geom geo_countries featureField=VendorCountry
+		   Ex: index=sales sourcetype=vendor_sales VendorID>=5000 AND VendorID<=5055 
+			| stats count as Sales by VendorCountry
+			| geom geo_countries featureField=VendorCountry
 
-singlevalue visualization
-**************************
+	  singlevalue visualization
+	  **************************
 
-    index=web sourcetype=access_combined action=purchase 
-	| stats sum(price) as total
+		    index=web sourcetype=access_combined action=purchase 
+			| stats sum(price) as total
 
-trendline commmand
-******************
-     index=web sourcetype=access_combined action=purchase status=200
-	| timechart sum(price) as sales
-	| trendline wma2(sales) as trend
+	  trendline commmand
+          ******************
+		     index=web sourcetype=access_combined action=purchase status=200
+			| timechart sum(price) as sales
+			| trendline wma2(sales) as trend
 
-      2-> Two days average value took it out
-    Trendtype:sma -> sum moving average
-	      ema -> exponential moving average
-	      wma -> weighted moving average
+		      2-> Two days average value took it out
+		    Trendtype:sma -> sum moving average
+			      ema -> exponential moving average
+			      wma -> weighted moving average
 
-  chartoverlay will be useful when using trendline
-
+		  chartoverlay will be useful when using trendline
 
 field format
 ************
@@ -417,6 +481,18 @@ Naming Convention
 	> Private - Only that user
 	> Specific App - Power user, Admin can grant read and write perissions
 	> All Apps - admin can only one grant ead and write
+	
+	Field extraction
+        ******************
+
+     Two types: 1 Regular expression
+	2. delimiter which separated with comma
+
+     Extract with GUI three methods
+     Extract with tools:
+
+     Field Aliases (Aliases and Calc Fields)
+     ****************************************
 
 Tags and Event types
 *********************
