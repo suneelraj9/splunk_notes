@@ -97,22 +97,22 @@ Module - 9
 
 	   | top vendor product_name limit=0
 
-	   clauses used in top
-	   limit=int
-	   countfield=string
-	   percentfield=string
-	   showcount=True/False
-	   showperc=True/False
-	   showother=True/False
-	   otherstr=string
+		   clauses used in top
+		   limit=int
+		   countfield=string
+		   percentfield=string
+		   showcount=True/False
+		   showperc=True/False
+		   showother=True/False
+		   otherstr=string
 
 	   | top vendor limit=5 showperc=False countfield="Number of Sales" useother=True
 
-	   //useother - vendor not listed in top 5
+	     //useother - vendor not listed in top 5
 
-	   // by clause
-	   / top product_name by vendor limit=3 countfield="Number of Sales" showperc=False
-
+	     // by clause
+	     / top product_name by vendor limit=3 countfield="Number of Sales" showperc=False
+   
 
 	> rare same options like top command
 
