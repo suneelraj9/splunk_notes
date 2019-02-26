@@ -566,8 +566,39 @@ Field extraction
      Extract with GUI three methods
      Extract with tools:
 
-     Field Aliases (Aliases and Calc Fields)
-     ****************************************
+Field Aliases (Aliases and Calc Fields)
+****************************************
+
+	Sourcetype may have different field names for unique field
+
+	ex: one sourcetype can have "username" as field
+	    another sourcetype can have "user" as field
+
+	Navigate to settings -> Fields
+	  Destination App: search
+	  Name: EmployeeUsers
+	  Apply to: sourcetype
+	  Field aliases: Username: Employee
+	  
+	Note: same way need to add one more field which having same unique field of sourcetype
+	
+     Examples:
+     	Go to Settings > Fields > Field aliases. Create a field alias with the following values:
+	— Destination app: search
+	— Name: cisco_wsa_squid_aliases
+	— Apply to: sourcetype
+	— Named: cisco_wsa_squid
+	— Field aliases: cs_username = user
+	Return to the Search & Reporting app. Re-run your search and examine the user field and values
+	
+	Go to Settings > Fields > Calculated fields.
+	Create a calculated field named sc_megabytes that converts the value of sc_bytes to MB with the
+	following values:
+	— Destination app: search
+	— Apply to: sourcetype
+	— Named: cisco_wsa_squid
+	— Name: sc_megabytes
+	— Eval expression: sc_bytes/(1024*1024)
 
 Tags and Event types
 *********************
