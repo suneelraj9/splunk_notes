@@ -461,6 +461,10 @@ Correlating events
 	index=web sourcetype=access_combined
 	| transaction clientip
         | table clientip,action,product_name
+	
+	index=web sourcetpe=access_combined
+	|transaction clientip
+	|timechart avg(duration)
  
      Transaction Command Definitions
      ===============================
@@ -480,6 +484,44 @@ Correlating events
 	index=network sourcetype=cisco_esa REJECT
 	| transaction mid dcid icid
 	| search REJECT
+	
+     Examples:
+     	index=web sourcetype=access_combined action=*
+	| transaction JSESSIONID
+	| table JSESSIONID, clientip, action
+	
+	index=web sourcetype=access_combined action=*
+	| transaction JSESSIONID
+	| table JSESSIONID, clientip, action
+	| search action=purchase
+	
+	index=web sourcetype=access_combined action=*
+	|  transaction JSESSIONID 
+	| table JSESSIONID, clientip,duration,eventcount,action 
+	| search action=purchase 
+	| eval durationMinutes=round(duration/60,1) 
+	|  where durationMinutes>1
+	
+	index=web sourcetype=access_combined
+	| transaction clientip startswith=action="addtocart" endswith=action="purchase"
+	| table clientip, JSESSIONID, product_name, action, duration, eventcount, price
+	
+	(index=network sourcetype=cisco_wsa_squid) OR
+	(index=web sourcetype=access_combined) status>399
+	| fields sourcetype, status
+	| transaction status maxspan=5m
+	| search sourcetype=access_combined AND sourcetype=cisco_wsa_squid
+	| timechart count by status
+	
+	(index=network sourcetype=cisco_wsa_squid) OR (index=web sourcetype=access_combined)
+	status>399
+	| fields sourcetype, status
+	| transaction status maxspan=5m
+	| search sourcetype=access_combined AND sourcetype=cisco_wsa_squid 
+	| timechart count by status 
+	| addtotals 
+	| search Total>4 
+	| fields - Total
 	
 Naming Convention
 *****************
