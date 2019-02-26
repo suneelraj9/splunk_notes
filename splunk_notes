@@ -525,24 +525,43 @@ Correlating events
 	
 Naming Convention
 *****************
+ Six segmented field
 	Group
 	Type
 	Platform
 	Category
 	Time
 	Description
+	
+ As we are working for security-focused workflow action	
    Ex:OPS_WFA_Network_Security_na_IPwhoisAction
+      Group- OPS
+      Type- WFA (work flow action)
+      Platform - Network
+      Category - Security
+      Not time nased used -NA
+      IPwhoisAction - Description
+      
+ Give delegates to others
+    Under setting in splunk -> All Configurations
+      Right edge corner -> Reassign knowledge objects
+      
+ Splnk uses "CIM" (Common Information Model) normalizing objects
+
 
   knowledge object permissions
 	> Private - Only that user
 	> Specific App - Power user, Admin can grant read and write perissions
 	> All Apps - admin can only one grant ead and write
 	
-	Field extraction
-        ******************
+Field extraction
+******************
 
      Two types: 1 Regular expression
 	2. delimiter which separated with comma
+	
+     Regular expression - Unstructured data and events that you want to extract field from
+     Delimiters - Used when events contain fields separated by a character
 
      Extract with GUI three methods
      Extract with tools:
