@@ -603,22 +603,30 @@ Field Aliases (Aliases and Calc Fields)
 Tags and Event types
 *********************
 
- Tag -> click event option -> Action option and tag the name of the field
-   after placing tags search by
-   index=security tag=SF
+	 Tag -> click event option -> Action option and tag the name of the field
+	   after placing tags search by
+	   index=security tag=SF
+	   
+	 Event type from Search
+	 **********************
+	  > After search -> Save as Event type
+	    Name - purchase_strategy
+	    Tags - purchase_strategy,sales
+	    color- blue
+	    priority - highest
 
-  Event type builder
-  ==================
-  index=web sourcetype=access_combined action=purchase categoryId*
-   > select build event type
-   
-   Which search would limit an "alert" tag to the "host" field?
-	tag::host=alert
+	  Event type builder
+	  ==================
+	  index=web sourcetype=access_combined action=purchase categoryId*
+	   > select build event type
 
-   These allow you to categorize events based on search terms.
-	Event Types
+	   Which search would limit an "alert" tag to the "host" field?
+		tag::host=alert
 
-    Tags are descriptive names for -> key value pairs
+	   These allow you to categorize events based on search terms.
+		Event Types
+
+	   Tags are descriptive names for -> key value pairs
     
  Macros
 ******
