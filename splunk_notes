@@ -720,4 +720,31 @@ Workflow actions
 			    details=$_raw$
 			   
 	 Create search
+	 
+Data models
+************
+     Consits of
+       Events
+       Searches
+       Transactions
+       
+     Data model create
+       Navigate to settings -> Data model
+       
+       New Data Model
+         Title - SALES_DM_Web_requests_na_Webrequests
+	 ID - SALES_DM_Web_requests_na_WebRequests
+	 
+       Under datasets
+         Drop dow of add dataset - Root event > enable you to create hierarchies based on a set of events and are the most used type
+	 			   Root search > Build hierarchies from transporming search 
+         Note: Avoid using root search
+	 
+	 Add event dataset >
+	   Dataset name - web_requests
+	   Dataset ID - web_requests
+	   Constraints -> index=web AND sourcetype=access_combined
+	   
+	   Root transaction -> objects allow you to create datasets from groups of related events that span time.
+	   		       They use an existing object from our data hierarchy to group on
 	 	
