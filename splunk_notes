@@ -613,12 +613,21 @@ Tags and Event types
 	    Name - purchase_strategy
 	    Tags - purchase_strategy,sales
 	    color- blue
-	    priority - highest
-
+	    priority - highest 
+	    
+	    RUnning a search with event type
+	    index=web sourcetype=access_combined
+	    | eventtype=purchase_strategy
+	    
 	  Event type builder
-	  ==================
+	  ******************
+	  Event type can also obtain from event type builder
+	  
 	  index=web sourcetype=access_combined action=purchase categoryId*
-	   > select build event type
+	  
+	  From information(i) event id we select Event Actions -> Build Event Type
+	   
+	 > select build event type
 
 	   Which search would limit an "alert" tag to the "host" field?
 		tag::host=alert
@@ -628,30 +637,43 @@ Tags and Event types
 
 	   Tags are descriptive names for -> key value pairs
     
- Macros
+Macros
 ******
 
-  Reusable search strings or portions of search strings
-  Useful for frequest searches with complicated search syntax
-  store entire search strings
-  Time range independent
-   pass arguments to the search
+	  Reusable search strings or portions of search strings
+	  Useful for frequest searches with complicated search syntax
+	  store entire search strings
+	  Time range independent
+	   pass arguments to the search
   
-  create macro
-  =============
+	  create macro
+	  =============
 
-  ex: index=sales sourcetype=vendor_sales
-	| stats sum(sale_price) as total_sales by Vendor
-	|eval total_sales = "$" + tostring(round(total_sales,2), "commas")
+	  Ex: index=sales sourcetype=vendor_sales
+		| stats sum(sale_price) as total_sales by Vendor
+		|eval total_sales = "$" + tostring(round(total_sales,2), "commas")
 
-   settings -> advanced search -> add new macro
-   place it over there in Definition -> eval total_sales = "$" + tostring(round(total_sales,2), "commas")
+	   settings -> advanced search -> add new macro
+	   place it over there in Definition -> eval total_sales = "$" + tostring(round(total_sales,2), "commas")
 
-   index=sales sourcetype=vendor_sales
-	| stats sum(sale_price) as total_sales by Vendor
-	| 'convertUSD'
+	   index=sales sourcetype=vendor_sales
+	   | stats sum(sale_price) as total_sales by Vendor
+	   |'convertUSD'
+		
+	   Note: Using backtik character will indicate to the splunk it is macro definition
 
-   Macro argument
-   ==============
+	   Macro argument
+	   ==============
 
-   Multiple arguments
+	   Multiple arguments can use during different search options
+	   Setting-> Advanced search-> create macro
+	   Name - convertUSD(1)
+	   eval $moolah$ = "$" + tostring(round($moolah$,2),"commas")
+	   Argument field -> moolah
+	   
+           Example:
+	     index=sales sourcetype=vendor_sales
+	     | stats sum(sale_price) as total_sales by Vendor
+	     |'convertUSD(total_sales)'
+	     
+	  > Expanded search -> Ctl+Shift+E
