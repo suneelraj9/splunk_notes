@@ -677,3 +677,47 @@ Macros
 	     |'convertUSD(total_sales)'
 	     
 	  > Expanded search -> Ctl+Shift+E
+	  
+Workflow actions
+*****************
+      Create links to interact with external resources or narrow research
+      
+    Create GET  
+      Navigate to settings -> Fields -> Click Work flow action
+      
+        Destination app-> search
+	Name  -> OPS_WFA_Network_Security_ns_GetWhoIs
+	Label -> Get Whois for $src_ip$
+	Apply only to the following fields -> src_ip
+	Apply only to the following event types -> <if balnk> Indicate applicable to all
+	Show action in -> Both (Event and field)
+	Action type -> link
+	
+	URI -> http://whois.domaintools.com/$src_ip$
+	Open link in -> New window or Same Window
+	Link method -> get
+	
+       To test our work flow action
+         index=security sourcetype=linux_secure failed root src_ip>11
+	 
+     Create POST
+        Navigate to settings -> Fields -> Click Work flow action
+	Name  -> OPS_WFA_Network_Security_na_TicketPost
+	Label -> Create ticket
+	Apply only to the following field -> status
+	Show action in -> Event menu
+	Action type -> link
+      
+        Link configuration
+	  URI -> http://52.3.246.206
+	  Open link in -> New window
+	  Link method -> post
+	 
+	  Post arguments -> summary = $status$error$host$
+	  		    priority = urgetn
+			    occurred=$_time$
+			    environment=$host$
+			    details=$_raw$
+			   
+	 Create search
+	 	
