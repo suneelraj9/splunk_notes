@@ -781,5 +781,34 @@ Data models
        	  Accelarating data model - It can make searches faster and more efficient
 	   https://docs.splunk.com/Documentation/Splunk/latest/Knowledge/Acceleratedatamodels
 	      
-	    
-	
+	      
+Common information model(CIM)
+*****************************
+  Normalized different occurences to a shared structure
+  
+  >Maps all data to defined method
+  >Normalizes to common language
+  
+  Data can be normalized at index time/search time
+  
+  >CIM schema can be used for using
+   -field extractions
+   -aliase
+   -eventtypes
+   -tags
+   
+  >Knowledge objects can be shared globally across all apps
+  >Splunk premium solutions rely heavily on CIM
+  
+  CIM Addon
+  *********
+   >validate indexed data
+   >normalize data
+   >improve performance
+   
+   - Addon is free 
+   - No additional indexing
+   - Doesn't affect license
+   
+  > Addon will only install on search head/single instance of deployment of splunk
+
