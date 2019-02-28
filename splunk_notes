@@ -728,23 +728,39 @@ Data models
        Searches
        Transactions
        
+     Data model has the framework, pivot has the interface to data model
+       
      Data model create
        Navigate to settings -> Data model
        
        New Data Model
          Title - SALES_DM_Web_requests_na_Webrequests
 	 ID - SALES_DM_Web_requests_na_WebRequests
+	 App - search & reporting
 	 
-       Under datasets
+       Under datasets>Root datasets
+       
+         First need to create root event 
+       
          Drop dow of add dataset - Root event > enable you to create hierarchies based on a set of events and are the most used type
 	 			   Root search > Build hierarchies from transporming search 
          Note: Avoid using root search
 	 
-	 Add event dataset >
+	 Add event dataset  
 	   Dataset name - web_requests
 	   Dataset ID - web_requests
 	   Constraints -> index=web AND sourcetype=access_combined
 	   
+	 > After creating root event you can can see root transaction, root child along with root event, root search
 	   Root transaction -> objects allow you to create datasets from groups of related events that span time.
 	   		       They use an existing object from our data hierarchy to group on
-	 	
+	 
+	 > We want to include multiple fields select Add field (drop down menu->Auto extra, Eval exp, Look up, Regul exp, Geo IP)
+	 
+         Using eval>
+	   Example Using eval expression users can view it on day basis
+	    strftime(_time,"%m:%d:%A")
+	    We can create date field -> Field name->Day, Display name->Day  
+	  
+        Child Datasets
+	
