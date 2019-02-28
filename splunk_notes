@@ -762,5 +762,24 @@ Data models
 	    strftime(_time,"%m:%d:%A")
 	    We can create date field -> Field name->Day, Display name->Day  
 	  
-        Child Datasets
+       Child Datasets>
+	 Add Child dataset
+	   Dataset Name - Successful requests
+	   Dataset ID - Successful_requests
+	   
+	    Inherit from -> field filled up with default dataset
+	    
+	    Additional constraints>
+	      status=200
+	      >
+       Using transactions>
+          practise it
+       Data model search>
+          | pivot <data_model_name> <data_set_name> <search_terms> <commands
+       Managing data models>
+         Datamodels can download and use it in our dash board
+       	  Accelarating data model - It can make searches faster and more efficient
+	   https://docs.splunk.com/Documentation/Splunk/latest/Knowledge/Acceleratedatamodels
+	      
+	    
 	
