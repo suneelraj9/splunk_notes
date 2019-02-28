@@ -784,6 +784,8 @@ Data models
 	      
 Common information model(CIM)
 *****************************
+https://docs.splunk.com/Documentation/CIM/latest/User/Howtousethesereferencetables
+
   Normalized different occurences to a shared structure
   
   >Maps all data to defined method
